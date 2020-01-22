@@ -1,7 +1,9 @@
-read.csv("assignment_data")
+#tinkering with the data generated from 
+
+read.csv("Measurements.csv")
 
 ?read.csv
-MData<-read.csv("assignment_data")
+MData<-read.csv("Measurements.csv")
 MData
 
 MData$Volume<-MData$Limb.Length*MData$Limb.Width
@@ -13,4 +15,5 @@ qplot(x=Limb.Width,y=Limb.Length,colour=I("red"),size=I(5),shape=I(21),fill=I("o
 
       
 
-ben<-o+scale_fill_gradient()
+
+?dat

@@ -1,0 +1,191 @@
+---
+title: "DataAnalysis"
+output: html_document
+authour: Kevindeep Saroya
+date: 23/Jan/2020
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+library("dplyr")
+
+# Introduction
+
++ Some functions not included in base rstudio will be required to perform the calculations
++ Download "dplyr" and "ggplot2" using the following command:
+```{r eval=FALSE}
+install.packages("dplyr")
+instal.packages("ggplot2")
+```
++ Load "dplyr" and "ggplot2" into the the script to get access to the functions that will allow us to manipulate the data and create plots
+```{r}
+library("dplyr")
+library("ggplot2")
+```
+
+
+# Data Generation
+
+### Loading our Data
+
++ Assigning our data to an object in R
+```{r}
+MData<-read.csv("/Users/kevinsaroys/Desktop/Biol 432/assignment1/Measurements.csv")
+print(MData)
+```
+
+# Data Manipulation
+
+### Shortening column names
+
++ To alter the original column names, a "dplyr" command use rename() function
+
+```{r}
+MData<-rename(MData,Spe=Species)
+MData<-rename(MData,Lln=Limb.Length)
+MData<-rename(MData,Lwd=Limb.Width)
+MData<-rename(MData,unL=unitsL)
+MData<-rename(MData,unW=unitsW)
+```
+
++ verify the name change function worked using names() functions
+
+```{r echo=TRUE}
+names(MData)
+```
+
++ Updated data set
+
+```{r}
+MData
+```
+
++ Changing measurement units to match one common unit
+
+
+```{r}
+MData$unL<-c("cm")
+MData$unW<-c("cm")
+```
+
+
++ Updated MData list with units changed
+```{r}
+print(MData)
+```
+
+### Creating the Volume column
+
+```{r}
+MData<-mutate(MData, Volume= Lln*Lwd)
+MData
+```
+
+## Plotting our generated data
+
++ Width and length will be plotted using the function qplot()
+
+```{r evalu=TRUE}
+Plot1<-qplot(data=MData,x=Lln,y=Lwd,ylab="Limb Length (cm)",xlab="Limb Width (cm)",size=I(4),color=I("red"))
+print(Plot1)
+```
+
++ Next we will plot Width and Length for species that have above-average volume
++ First we must calculate the average volume of the species which will be used to sort our data later
+```{r evalu=TRUE}
+mean(MData$Volume)
+
+```
+
++ Value obtained was 94.8 (rounded)
++ Using this value as a filter, we will using the 'pipe' functions of 'dplyr' to narrow down our data set and make a plot for above-average species only 
++ MData is listed at the beginning, every subsequent line our data.frame is being sent through the functions until we get an output
+
+```{r}
+MData %>% 
+  select(Spe,Lln,Lwd,Volume) %>% 
+  filter(Volume>=94.8)
+```
+
++ Plottting this data
+
+```{r}
+Plot2<-MData %>% 
+  select(Spe,Lln,Lwd,Volume) %>% 
+  filter(Volume>=94.8) 
+qplot(data=Plot2,x=Lln,y=Lwd,xlab="Limb Length (cm)", ylab="Limb Width (cm)",color=I("red"),fill=I("blue"),size=I(4))
+```
+
++ Creating a table for species with below-average volume only
+
+```{r}
+Plot3<-MData %>% 
+  select(Spe,Volume) %>% 
+  filter(Volume<=94.8) 
+print(Plot3)
+```
+
++ Now we must group the species into 2 seperate and arbitrary groups
+
++ First grouping will be done based on taxon, each species will be assigned a 1 or 2 to group them into seperate taxons
++ Second grouping will be done based on whether the animal can fly, will be grouped into YES or NO
++ Then we will summarize the data using the summarize() function to find mean and standard deviation across the groups
+
+```{r}
+MData<-mutate(MData, Taxon=sample(x=c("One","Two"),prob=c(0.5,0.5),size=10,replace=TRUE))
+MData<-mutate(MData, Flight=sample(x=c("YES","NO"),prob=c(0.5,0.5),size=10,replace=TRUE))
+print(MData)
+```
+
+
+
+
+
+## Generating Summary data for our data.frame
+
++ Summarize the mean and SD of Length, Width and Volume for each of the groups, and present in table form.
+
++ First group is Taxon, included are the summaries of mean and sd for Length, Width, and Volume
+```{r}
+MData %>% 
+  select(Spe,Lln,Lwd,Volume,Taxon) %>% 
+  filter(Taxon=="One") %>% 
+  summarize(MeanLln=mean(Lln),MeanLwd=mean(Lwd),MeanVOL=mean(Volume),SDLln=sd(Lln),SDLwd=sd(Lwd),SDVOL=sd(Volume))
+
+
+```
++ The other group in Taxon will be see as:
+```{r}
+MData %>% 
+  select(Spe,Lln,Lwd,Volume,Taxon) %>% 
+  filter(Taxon=="Two") %>% 
+  summarize(MeanLln=mean(Lln),MeanLwd=mean(Lwd),MeanVOL=mean(Volume),SDLln=sd(Lln),SDLwd=sd(Lwd),SDVOL=sd(Volume))
+```
+
++ Next, the summaries for the Flight group who are "YES"
+```{r}
+MData %>% 
+  select(Spe,Lln,Lwd,Volume,Flight) %>% 
+  filter(Flight=="YES") %>% 
+  summarize(MeanLln=mean(Lln),MeanLwd=mean(Lwd),MeanVOL=mean(Volume),SDLln=sd(Lln),SDLwd=sd(Lwd),SDVOL=sd(Volume))
+```
+
++ Summaries for the Flight group who are "NO"
+```{r}
+MData %>% 
+  select(Spe,Lln,Lwd,Volume,Flight) %>% 
+  filter(Flight=="NO") %>% 
+  summarize(MeanLln=mean(Lln),MeanLwd=mean(Lwd),MeanVOL=mean(Volume),SDLln=sd(Lln),SDLwd=sd(Lwd),SDVOL=sd(Volume))
+```
+
+
+
+
+
+
+
+
+
+
+
